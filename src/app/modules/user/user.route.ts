@@ -5,7 +5,7 @@ import { USER_ROLE } from './user.constant'
 
 const router = express.Router()
 
-router.get('/',auth(USER_ROLE.admin), UserController.getAllUsers)
+router.get('/', auth(USER_ROLE.admin), UserController.getAllUsers)
 
 router.get('/:id', UserController.getSingleUser)
 
