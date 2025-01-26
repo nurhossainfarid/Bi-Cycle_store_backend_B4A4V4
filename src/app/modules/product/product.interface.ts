@@ -2,6 +2,7 @@
 export type TProduct = {
     name: string;
     brand: string;
+    model: string;
     price: number;
     type: "Mountain" | "Road" | "Hybrid" | "BMX" | "Electric";
     description: string;
@@ -13,6 +14,7 @@ export type TProduct = {
 export type TUpdateProductData = {
     name?: string;
     brand?: string;
+    model?: string;
     price?: number;
     type?: 'Mountain' | 'Road' | 'Hybrid' | 'BMX' | 'Electric';
     description?: string;

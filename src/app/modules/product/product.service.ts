@@ -1,57 +1,77 @@
-import { TProduct, TUpdateProductData } from "./product.interface";
-import { ProductModel } from "./product.model";
-
+import AppError from '../../errors/AppError'
+import { TProduct, TUpdateProductData } from './product.interface'
+import { Product } from './product.model'
+import httpStatus from 'http-status'
 
 // Create a product
 const createProductIntoDB = async (product: TProduct) => {
-    const result = await ProductModel.create(product);
+  const isProductExist = await Product.findOne({ name: product?.name })
+
+  if (
+    isProductExist?.name === product?.name &&
+    isProductExist?.brand === product?.brand &&
+    isProductExist?.model === product?.model
+  ) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'Product already exists, please update product quantity.',
+    )
+  } else {
+    const result = await Product.create(product)
     if (!result) {
-        throw new Error('Product can not be created')
+      throw new Error('Product can not be created')
     }
-    return result;
+    return result
+  }
 }
 
 // Get All products
 const getAllProductsFromDB = async (searchTerm: object) => {
-    const result = await ProductModel.find(searchTerm);
-    if (!result) {
-        throw new Error('Products not found')
-    }
-    return result;
+  const result = await Product.find(searchTerm)
+  if (!result) {
+    throw new Error('Products not found')
+  }
+  return result
 }
 
 // Get a specific product by id
 const getSpecificProductFromDB = async (productId: string) => {
-    const result = await ProductModel.findById({ _id: productId});
-    if (!result) {
-        throw new Error('Product not found')
-    }
-    return result;
+  const result = await Product.findById({ _id: productId })
+  if (!result) {
+    throw new Error('Product not found')
+  }
+  return result
 }
 
 // Update a product by id
-const updateProductIntoDB = async (productId: string, updateData: TUpdateProductData) => {
-    const result = await ProductModel.findByIdAndUpdate({ _id: productId}, {$set: updateData}, {new: true });
-    if (!result) {
-        throw new Error('Product can not be updated')
-    }
-    return result;
+const updateProductIntoDB = async (
+  productId: string,
+  updateData: TUpdateProductData,
+) => {
+  const result = await Product.findByIdAndUpdate(
+    { _id: productId },
+    { $set: updateData },
+    { new: true },
+  )
+  if (!result) {
+    throw new Error('Product can not be updated')
+  }
+  return result
 }
 
-// Delete a product by 
+// Delete a product by
 const deleteProductFromDB = async (productId: string) => {
-    const result = await ProductModel.deleteOne({ _id: productId});
-    if (!result) {
-        throw new Error('Product can not be deleted')
-    }
-    return result;
+  const result = await Product.deleteOne({ _id: productId })
+  if (!result) {
+    throw new Error('Product can not be deleted')
+  }
+  return result
 }
-
 
 export const ProductServices = {
-    createProductIntoDB,
-    getAllProductsFromDB,
-    getSpecificProductFromDB,
-    updateProductIntoDB,
-    deleteProductFromDB
+  createProductIntoDB,
+  getAllProductsFromDB,
+  getSpecificProductFromDB,
+  updateProductIntoDB,
+  deleteProductFromDB,
 }

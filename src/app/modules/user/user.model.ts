@@ -10,6 +10,7 @@ const userSchema = new Schema<TUser, UserModel>(
       required: [true, 'Email is required'],
       unique: true,
       trim: true,
+      match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Provide valid email'],
     },
     password: {
       type: String,

@@ -3,13 +3,10 @@ import { TOrder } from './order.interface'
 
 const orderSchema = new Schema<TOrder>(
   {
-    email: {
-      type: String,
-      required: [true, 'Email is required.'],
-      match: [
-        /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-        'Provide valid email',
-      ], 
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: [true, '{ru}'],
     },
     product: {
       type: Schema.Types.ObjectId,
@@ -26,6 +23,15 @@ const orderSchema = new Schema<TOrder>(
       required: [true, 'Total price is required.'],
       min: [0, 'Total price cannot be negative.'],
     },
+    status: {
+      type: String,
+      enum: ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'],
+      default: 'PENDING',
+    },
+    discount: {
+      type: Number,
+      min: [0, 'Discount cannot be negative.'],
+    },
   },
   {
     timestamps: true,
@@ -33,4 +39,4 @@ const orderSchema = new Schema<TOrder>(
 )
 
 // Create the Order model
-export const OrderModel = model<TOrder>('Order', orderSchema)
+export const Order = model<TOrder>('Order', orderSchema)
