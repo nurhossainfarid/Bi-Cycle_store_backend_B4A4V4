@@ -10,7 +10,7 @@ app.use(express.json())
 app.use(cors())
 
 // Application routes
-app.use('/api/v1', router)
+app.use('/api/v2', router)
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Welcome to bi-cycle store backend!')
