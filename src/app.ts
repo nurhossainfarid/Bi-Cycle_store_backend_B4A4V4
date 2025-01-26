@@ -1,7 +1,8 @@
 import express, { Application, Request, Response } from 'express'
-import cors from 'cors';
-import { ProductRoutes } from './app/modules/product/product.route';
-import { OrderRoutes } from './app/modules/order/order.route';
+import cors from 'cors'
+import router from './app/routes'
+import globalErrorHandler from './app/middlewares/globalErrorHandler'
+import NotFound from './app/middlewares/notFound'
 const app: Application = express()
 
 // parser
@@ -9,31 +10,13 @@ app.use(express.json())
 app.use(cors())
 
 // Application routes
-app.use('/api/products', ProductRoutes);
-app.use('/api/orders', OrderRoutes);
-
+app.use('/api/v1', router)
 
 app.get('/', (req: Request, res: Response) => {
-  res.send('Hello World!')
+  res.send('Welcome to bi-cycle store backend!')
 })
 
-// Wrong route
-app.all("*", (req: Request, res: Response) => {
-  res.status(400).json({
-    success: false,
-    message: "Route not found"
-  })
-})
-
-// Global error handler
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-app.use((error: any, req: Request, res: Response) => {
-  if (error) {
-    res.status(400).json({
-      success: false,
-      message: "Something went wrong"
-    })
-  }
-})
+app.use(globalErrorHandler)
+app.use(NotFound)
 
 export default app
