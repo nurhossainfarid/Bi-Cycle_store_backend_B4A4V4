@@ -20,7 +20,10 @@ const getSingleUserFromDB = async (id: string) => {
   const result = await User.findById(id).populate('Blogs')
 
   if (!result) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Your account was already deleted!')
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      'Your account was already deleted!',
+    )
   }
   return result
 }
@@ -29,6 +32,8 @@ const deleteUserFromDB = async (id: string) => {
   const result = await User.findByIdAndUpdate(id, { isDeleted: true })
   return result
 }
+
+// TODO: update user service
 
 export const UserServices = {
   getAllUsersFromDB,

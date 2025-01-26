@@ -37,6 +37,8 @@ const deleteUser = catchAsync(async (req, res) => {
   })
 })
 
+// TODO: update user controller
+
 export const UserController = {
   getAllUsers,
   getSingleUser,
