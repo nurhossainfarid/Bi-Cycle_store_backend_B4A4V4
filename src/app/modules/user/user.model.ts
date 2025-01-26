@@ -3,7 +3,6 @@ import bcrypt from 'bcrypt'
 import config from '../../config'
 import { TUser, UserModel } from './user.interface'
 
-
 const userSchema = new Schema<TUser, UserModel>(
   {
     email: {
@@ -84,7 +83,8 @@ const userSchema = new Schema<TUser, UserModel>(
   },
 )
 
-// pre save middleware/hook document middleware
+// pre save middleware hook document middleware
+// hash password
 userSchema.pre('save', async function (next) {
   // eslint-disable-next-line @typescript-eslint/no-this-alias
   const user = this
@@ -93,15 +93,16 @@ userSchema.pre('save', async function (next) {
     user.password,
     Number(config.bcrypt_salt_rounds),
   )
-
   next()
 })
 
+// save blank password
 userSchema.post('save', function (doc, next) {
   doc.password = ''
   next()
 })
 
+// check user is deleted
 userSchema.pre('find', async function (next) {
   this.find({ isDeleted: { $ne: true } })
   next()

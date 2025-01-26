@@ -781,13 +781,15 @@ bcrypt@^5.1.1:
 "bi-cycle_store_b4a2v4@file:.":
   version "1.0.0"
   dependencies:
+    "@types/bcrypt" "^5.0.2"
     "@typescript-eslint/eslint-plugin" "^8.15.0"
     "@typescript-eslint/parser" "^8.15.0"
     bcrypt "^5.1.1"
-    bi-cycle_store_b4a2v4 "file:C:/Users/AORUS/AppData/Local/Yarn/Cache/v6/npm-bi-cycle-store-b4a2v4-1.0.0-b742a837-a092-49f3-a129-d1e765e051a7-1737865502206/node_modules/bi-cycle_store_b4a2v4"
+    bi-cycle_store_b4a2v4 "file:C:/Users/AORUS/AppData/Local/Yarn/Cache/v6/npm-bi-cycle-store-b4a2v4-1.0.0-1e143f3c-f5e0-44ea-9057-223d98c0e2c2-1737866138264/node_modules/bi-cycle_store_b4a2v4"
     dotenv "^16.4.5"
     eslint "^9.15.0"
     express "^4.21.1"
+    http-status "^2.1.0"
     mongoose "^8.8.2"
     prettier "^3.3.3"
     vercel "^39.1.1"
@@ -1758,6 +1760,11 @@ http-errors@~1.4.0:
   dependencies:
     inherits "2.0.1"
     statuses ">= 1.2.1 < 2"
+
+http-status@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/http-status/-/http-status-2.1.0.tgz#c9bd8ed0416e03199533e7dcbb2711207880b094"
+  integrity sha512-O5kPr7AW7wYd/BBiOezTwnVAnmSNFY+J7hlZD2X5IOxVBetjcHAiTXhzj0gMrnojQlwy+UT1/Y3H3vJ3UlmvLA==
 
 https-proxy-agent@^5.0.0:
   version "5.0.1"
@@ -3151,3 +3158,8 @@ yocto-queue@^0.1.0:
   version "0.1.0"
   resolved "https://registry.npmjs.org/yocto-queue/-/yocto-queue-0.1.0.tgz"
   integrity sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
+
+zod@^3.24.1:
+  version "3.24.1"
+  resolved "https://registry.yarnpkg.com/zod/-/zod-3.24.1.tgz#27445c912738c8ad1e9de1bea0359fa44d9d35ee"
+  integrity sha512-muH7gBL9sI1nciMZV67X5fTKKBLtwpZ5VBp1vsOQzj1MhrBZ4wlVCm3gedKZWLp0Oyel8sIGfeiz54Su+OVT+A==
