@@ -15,7 +15,9 @@ const getAllUsers = catchAsync(async (req, res) => {
 })
 
 const getSingleUser = catchAsync(async (req, res) => {
-  const result = await UserServices.getSingleUserFromDB(req.params.id)
+  const result = await (
+    await UserServices.getSingleUserFromDB(req.params.id)
+  ).populate('Orders')
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

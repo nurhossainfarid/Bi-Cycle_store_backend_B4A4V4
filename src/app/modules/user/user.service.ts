@@ -17,7 +17,7 @@ const getAllUsersFromDB = async (query: Record<string, unknown>) => {
 }
 
 const getSingleUserFromDB = async (id: string) => {
-  const result = await User.findById(id).populate('Blogs')
+  const result = await User.findById(id)
 
   if (!result) {
     throw new AppError(

@@ -19,6 +19,19 @@ export type TUser = {
   isDeleted: boolean
 }
 
+export type TUserResponse = {
+  _id: string
+  email: string
+  role: string
+  name: string
+  Orders: Types.ObjectId[]
+  needsPasswordChange: boolean
+  isBlocked: boolean
+  isDeleted: boolean
+  createdAt: string
+  updatedAt: string
+}
+
 export interface UserModel extends Model<TUser> {
   // instance method for user exist
   // eslint-disable-next-line no-unused-vars
@@ -33,4 +46,4 @@ export interface UserModel extends Model<TUser> {
   isPasswordMatched(plainTextPassword: string, hashedPassword: string): boolean
 }
 
-export type TUserRole = keyof typeof USER_ROLE;
+export type TUserRole = keyof typeof USER_ROLE

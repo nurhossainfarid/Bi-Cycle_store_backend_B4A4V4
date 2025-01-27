@@ -5,9 +5,22 @@ import { USER_ROLE } from '../user/user.constant'
 
 const router = express.Router()
 
-router.post('/create-order', auth(USER_ROLE.admin,), OrderController.createOrder)
+router.post(
+  '/create-order',
+  auth(USER_ROLE.admin, USER_ROLE.customer),
+  OrderController.createOrder,
+)
 router.get('/revenue', OrderController.calculateTotalRevenue)
-router.get('/', auth(USER_ROLE.customer, USER_ROLE.admin), OrderController.getAllOrders)
+router.get(
+  '/',
+  auth(USER_ROLE.customer, USER_ROLE.admin),
+  OrderController.getAllOrders,
+)
 router.get('/:id', OrderController.getSingleOrder)
+router.get(
+  '/verify',
+  auth(USER_ROLE.customer, USER_ROLE.admin),
+  OrderController.verifyPayment,
+)
 
 export const OrderRoutes = router

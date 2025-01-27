@@ -63,7 +63,7 @@ const userSchema = new Schema<TUser, UserModel>(
     Orders: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'Orders',
+        ref: 'Order',
       },
     ],
     needsPasswordChange: {

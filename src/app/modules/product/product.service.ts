@@ -48,6 +48,9 @@ const updateProductIntoDB = async (
   productId: string,
   updateData: TUpdateProductData,
 ) => {
+  if ((updateData?.quantity as number) > 0) {
+    updateData.inStock = true
+  }
   const result = await Product.findByIdAndUpdate(
     { _id: productId },
     { $set: updateData },

@@ -2,71 +2,99 @@
 import AppError from '../../errors/AppError'
 import { Product } from '../product/product.model'
 import { User } from '../user/user.model'
-import { TOrder } from './order.interface'
 import httpStatus from 'http-status'
 import { Order } from './order.model'
 import QueryBuilder from '../../builder/QueryBuilder'
 import { orderSearchTerm } from './order.constant'
 import mongoose from 'mongoose'
+import { TUserResponse } from '../user/user.interface'
+import { orderUtils } from './order.utils'
 
 // create new order
-const createOrderIntoDB = async (payload: TOrder) => {
-  const { user, product, quantity } = payload
+const createOrderIntoDB = async (
+  user: TUserResponse,
+  payload: { products: { product: string; quantity: number }[] },
+  client_ip: string,
+) => {
+  if (!payload?.products?.length)
+    throw new AppError(httpStatus.NOT_ACCEPTABLE, 'Order is not specified')
 
-  const findProduct = await Product.findById(product)
-  const userData = await User.findById(user)
-
-  if (!userData) {
-    throw new AppError(httpStatus.NOT_FOUND, 'User not found')
-  }
-
-  // check the user already deleted
-  const isDeleted = userData?.isDeleted
-
-  if (isDeleted) {
-    throw new AppError(httpStatus.FORBIDDEN, 'This user is already deleted!')
-  }
-
-  // check the user already blocked
-  const userStatus = userData?.isBlocked
-  if (userStatus) {
-    throw new AppError(httpStatus.FORBIDDEN, 'This user is blocked!')
-  }
-
-  if (!findProduct) {
-    throw new Error('Product not found')
-  }
-
-  if (findProduct.quantity < quantity) {
-    throw new Error(
-      `Insufficient stock. Only ${findProduct.quantity} items left.`,
-    )
-  }
+  const products = payload.products
 
   const session = await mongoose.startSession()
 
   try {
     session.startTransaction()
 
-    const newOrder = await Order.create([payload], { session })
+    let totalPrice = 0
+    const productDetails = await Promise.all(
+      products.map(async (item) => {
+        const product = await Product.findById(item?.product)
+        if (product) {
+          if (product.quantity < item.quantity) {
+            throw new AppError(
+              httpStatus.BAD_REQUEST,
+              `Insufficient stock. Only ${product.quantity} items left.`,
+            )
+          }
+          product.quantity -= item.quantity
+          if (product.quantity === 0) {
+            product.inStock = false
+          }
+          await product.save({ session })
+          const subtotal = product ? (product?.price || 0) * item.quantity : 0
+          totalPrice += subtotal
+          return item
+        } else {
+          throw new AppError(httpStatus.NOT_FOUND, 'Product not found')
+        }
+      }),
+    )
 
-    //   update product
-    findProduct.quantity -= quantity
-    if (findProduct.quantity === 0) {
-      findProduct.inStock = false
-    }
-    await findProduct.save({ session })
+    const orderData = { user: user?._id, products: productDetails, totalPrice }
+
+    const order = await Order.create([orderData], { session })
+
+    // //   update product
 
     await User.updateOne(
-      { _id: payload.user },
-      { $push: { Orders: newOrder[0]._id } },
+      { _id: user?._id },
+      { $push: { Orders: order[0]._id } },
       { session },
     )
 
+    // payment integration
+    const shurjopayPayload = {
+      amount: totalPrice,
+      order_id: order[0]._id,
+      currency: 'BDT',
+      customer_name: user.name,
+      customer_address: 'nothing',
+      customer_email: user.email,
+      customer_phone: 'nothing',
+      customer_city: 'nothing',
+      client_ip,
+    }
+
+    const payment = await orderUtils.makePaymentAsync(shurjopayPayload)
+
+    if (payment?.transactionStatus) {
+      await Order.updateOne(
+        { _id: order[0]._id },
+        {
+          transaction: {
+            id: payment.sp_order_id,
+            transactionStatus: payment.transactionStatus,
+          },
+        },
+        { session },
+      )
+    }
+
     await session.commitTransaction()
     session.endSession()
-    
-    return newOrder
+
+    return { order, payment }
   } catch (error: any) {
     await session.abortTransaction()
     session.endSession()
@@ -115,9 +143,40 @@ const calculateTotalRevenueFromDB = async () => {
   return revenue
 }
 
+const verifyPayment = async (order_id: string) => {
+  const verifiedPayment = await orderUtils.verifyPaymentAsync(order_id)
+
+  if (verifiedPayment.length) {
+    await Order.findOneAndUpdate(
+      {
+        'transaction.id': order_id,
+      },
+      {
+        'transaction.bank_status': verifiedPayment[0].bank_status,
+        'transaction.sp_code': verifiedPayment[0].sp_code,
+        'transaction.sp_message': verifiedPayment[0].sp_message,
+        'transaction.transactionStatus': verifiedPayment[0].transaction_status,
+        'transaction.method': verifiedPayment[0].method,
+        'transaction.date_time': verifiedPayment[0].date_time,
+        status:
+          verifiedPayment[0].bank_status == 'Success'
+            ? 'Paid'
+            : verifiedPayment[0].bank_status == 'Failed'
+              ? 'Pending'
+              : verifiedPayment[0].bank_status == 'Cancel'
+                ? 'Cancelled'
+                : '',
+      },
+    )
+  }
+
+  return verifiedPayment
+}
+
 export const OrderServices = {
   createOrderIntoDB,
   calculateTotalRevenueFromDB,
   getAllOrdersFromDB,
   getSingleOrderFromDB,
+  verifyPayment,
 }

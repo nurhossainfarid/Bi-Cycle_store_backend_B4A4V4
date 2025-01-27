@@ -6,18 +6,22 @@ const orderSchema = new Schema<TOrder>(
     user: {
       type: Schema.Types.ObjectId,
       ref: 'User',
-      required: [true, '{ru}'],
+      required: true,
     },
-    product: {
-      type: Schema.Types.ObjectId,
-      ref: 'Product',
-      required: [true, '{rp}'],
-    },
-    quantity: {
-      type: Number,
-      required: [true, 'Order quantity is required.'],
-      min: [1, 'Quantity must be at least 1.'],
-    },
+    products: [
+      {
+        product: {
+          type: Schema.Types.ObjectId,
+          ref: 'Product',
+          required: true,
+        },
+        quantity: {
+          type: Number,
+          required: [true, '{ru}'],
+          min: 1,
+        },
+      },
+    ],
     totalPrice: {
       type: Number,
       required: [true, 'Total price is required.'],
@@ -25,8 +29,8 @@ const orderSchema = new Schema<TOrder>(
     },
     status: {
       type: String,
-      enum: ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'],
-      default: 'PENDING',
+      enum: ['Pending', 'Paid', 'Shipped', 'Completed', 'Cancelled'],
+      default: 'Pending',
     },
     discount: {
       type: Number,
