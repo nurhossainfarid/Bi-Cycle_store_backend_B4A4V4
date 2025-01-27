@@ -10,6 +10,11 @@ router.post(
   auth(USER_ROLE.admin, USER_ROLE.customer),
   OrderController.createOrder,
 )
+router.get(
+  '/verify',
+  auth(USER_ROLE.customer, USER_ROLE.admin),
+  OrderController.verifyPayment,
+)
 router.get('/revenue', OrderController.calculateTotalRevenue)
 router.get(
   '/',
@@ -17,10 +22,5 @@ router.get(
   OrderController.getAllOrders,
 )
 router.get('/:id', OrderController.getSingleOrder)
-router.get(
-  '/verify',
-  auth(USER_ROLE.customer, USER_ROLE.admin),
-  OrderController.verifyPayment,
-)
 
 export const OrderRoutes = router

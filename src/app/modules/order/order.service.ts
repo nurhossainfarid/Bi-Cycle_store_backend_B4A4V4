@@ -51,15 +51,8 @@ const createOrderIntoDB = async (
       }),
     )
 
-    const orderData = { user: user?._id, products: productDetails, totalPrice }
-
-    const order = await Order.create([orderData], { session })
-
-    // //   update product
-
-    await User.updateOne(
-      { _id: user?._id },
-      { $push: { Orders: order[0]._id } },
+    let order = await Order.create(
+      [{ user: user?._id, products: productDetails, totalPrice }],
       { session },
     )
 
@@ -79,27 +72,59 @@ const createOrderIntoDB = async (
     const payment = await orderUtils.makePaymentAsync(shurjopayPayload)
 
     if (payment?.transactionStatus) {
-      await Order.updateOne(
-        { _id: order[0]._id },
-        {
-          transaction: {
-            id: payment.sp_order_id,
-            transactionStatus: payment.transactionStatus,
-          },
+      order[0] = await order[0].updateOne({
+        transaction: {
+          id: payment.sp_order_id,
+          transactionStatus: payment.transactionStatus,
         },
-        { session },
-      )
+      })
     }
+
+    await User.updateOne(
+      { _id: user?._id },
+      { $push: { Orders: order[0]._id } },
+      { session },
+    )
 
     await session.commitTransaction()
     session.endSession()
 
-    return { order, payment }
+    return payment
   } catch (error: any) {
     await session.abortTransaction()
     session.endSession()
     throw new AppError(httpStatus.BAD_REQUEST, error.message)
   }
+}
+
+const verifyPayment = async (order_id: string) => {
+  const verifiedPayment = await orderUtils.verifyPaymentAsync(order_id)
+
+  if (verifiedPayment.length) {
+    await Order.findOneAndUpdate(
+      {
+        'transaction.id': order_id,
+      },
+      {
+        'transaction.bank_status': verifiedPayment[0].bank_status,
+        'transaction.sp_code': verifiedPayment[0].sp_code,
+        'transaction.sp_message': verifiedPayment[0].sp_message,
+        'transaction.transactionStatus': verifiedPayment[0].transaction_status,
+        'transaction.method': verifiedPayment[0].method,
+        'transaction.date_time': verifiedPayment[0].date_time,
+        status:
+          verifiedPayment[0].bank_status == 'Success'
+            ? 'Paid'
+            : verifiedPayment[0].bank_status == 'Failed'
+              ? 'Pending'
+              : verifiedPayment[0].bank_status == 'Cancel'
+                ? 'Cancelled'
+                : '',
+      },
+    )
+  }
+
+  return verifiedPayment
 }
 
 // get all orders
@@ -141,36 +166,6 @@ const calculateTotalRevenueFromDB = async () => {
     },
   ])
   return revenue
-}
-
-const verifyPayment = async (order_id: string) => {
-  const verifiedPayment = await orderUtils.verifyPaymentAsync(order_id)
-
-  if (verifiedPayment.length) {
-    await Order.findOneAndUpdate(
-      {
-        'transaction.id': order_id,
-      },
-      {
-        'transaction.bank_status': verifiedPayment[0].bank_status,
-        'transaction.sp_code': verifiedPayment[0].sp_code,
-        'transaction.sp_message': verifiedPayment[0].sp_message,
-        'transaction.transactionStatus': verifiedPayment[0].transaction_status,
-        'transaction.method': verifiedPayment[0].method,
-        'transaction.date_time': verifiedPayment[0].date_time,
-        status:
-          verifiedPayment[0].bank_status == 'Success'
-            ? 'Paid'
-            : verifiedPayment[0].bank_status == 'Failed'
-              ? 'Pending'
-              : verifiedPayment[0].bank_status == 'Cancel'
-                ? 'Cancelled'
-                : '',
-      },
-    )
-  }
-
-  return verifiedPayment
 }
 
 export const OrderServices = {

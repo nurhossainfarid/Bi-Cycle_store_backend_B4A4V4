@@ -32,6 +32,15 @@ const orderSchema = new Schema<TOrder>(
       enum: ['Pending', 'Paid', 'Shipped', 'Completed', 'Cancelled'],
       default: 'Pending',
     },
+    transaction: {
+      id: String,
+      transactionStatus: String,
+      bank_status: String,
+      sp_code: String,
+      sp_message: String,
+      method: String,
+      date_time: String,
+    },
     discount: {
       type: Number,
       min: [0, 'Discount cannot be negative.'],
