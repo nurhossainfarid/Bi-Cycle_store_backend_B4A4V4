@@ -1,11 +1,11 @@
 import { Request, Response } from 'express'
-import { ProductServices } from './product.service'
+import { BicycleServices } from './bicycle.service'
 
-// create product
-const createProduct = async (req: Request, res: Response) => {
+// create Bicycle
+const createBicycle = async (req: Request, res: Response) => {
   try {
-    const productData = req.body
-    const data = await ProductServices.createProductIntoDB(productData)
+    const BicycleData = req.body
+    const data = await BicycleServices.createBicycleIntoDB(BicycleData)
 
     res.status(200).json({
       message: 'Bicycle created successfully',
@@ -25,11 +25,11 @@ const createProduct = async (req: Request, res: Response) => {
   }
 }
 
-// get all products
-const getAllProducts = async (req: Request, res: Response) => {
+// get all Bicycles
+const getAllBicycles = async (req: Request, res: Response) => {
   try {
     const searchTerm = req.query
-    const data = await ProductServices.getAllProductsFromDB(searchTerm)
+    const data = await BicycleServices.getAllBicyclesFromDB(searchTerm)
 
     res.status(200).json({
       message: 'Bicycles retrieved successfully',
@@ -49,11 +49,11 @@ const getAllProducts = async (req: Request, res: Response) => {
   }
 }
 
-// get a specific product by id
-const getSpecificProduct = async (req: Request, res: Response) => {
+// get a specific Bicycle by id
+const getSpecificBicycle = async (req: Request, res: Response) => {
   try {
-    const { productId } = req.params
-    const data = await ProductServices.getSpecificProductFromDB(productId)
+    const { bicycleId } = req.params
+    const data = await BicycleServices.getSpecificBicycleFromDB(bicycleId)
 
     res.status(200).json({
       message: 'Bicycle retrieved successfully',
@@ -73,12 +73,12 @@ const getSpecificProduct = async (req: Request, res: Response) => {
   }
 }
 
-// update a specific product by id
-const updateProduct = async (req: Request, res: Response) => {
+// update a specific Bicycle by id
+const updateBicycle = async (req: Request, res: Response) => {
   try {
-    const { productId } = req.params;
+    const { bicycleId } = req.params;
     const updateData = req.body;
-    const result = await ProductServices.updateProductIntoDB(productId, updateData);
+    const result = await BicycleServices.updateBicycleIntoDB(bicycleId, updateData);
 
     res.status(200).json({
       message: 'Bicycle updated successfully',
@@ -98,11 +98,11 @@ const updateProduct = async (req: Request, res: Response) => {
   }
 }
 
-// delete product by id
-const deleteProduct = async (req: Request, res: Response) => {
+// delete Bicycle by id
+const deleteBicycle = async (req: Request, res: Response) => {
   try {
-    const { productId } = req.params
-    const data = await ProductServices.deleteProductFromDB(productId)
+    const { bicycleId } = req.params
+    const data = await BicycleServices.deleteBicycleFromDB(bicycleId)
 
     res.status(200).json({
       message: 'Bicycle deleted successfully',
@@ -122,10 +122,10 @@ const deleteProduct = async (req: Request, res: Response) => {
   }
 }
 
-export const ProductController = {
-  createProduct,
-  getAllProducts,
-  getSpecificProduct,
-  updateProduct,
-  deleteProduct
+export const BicycleController = {
+  createBicycle,
+  getAllBicycles,
+  getSpecificBicycle,
+  updateBicycle,
+  deleteBicycle
 }

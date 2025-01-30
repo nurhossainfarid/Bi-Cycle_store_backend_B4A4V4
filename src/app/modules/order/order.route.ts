@@ -2,6 +2,8 @@ import express from 'express'
 import { OrderController } from './order.controller'
 import auth from '../../middlewares/auth'
 import { USER_ROLE } from '../user/user.constant'
+import { OrderValidation } from './order.validation'
+import validateRequest from '../../middlewares/validateRequest'
 
 const router = express.Router()
 
@@ -13,6 +15,7 @@ router.post(
 router.get(
   '/verify',
   auth(USER_ROLE.customer, USER_ROLE.admin),
+  validateRequest(OrderValidation.createOrderValidationSchema),
   OrderController.verifyPayment,
 )
 router.get('/revenue', OrderController.calculateTotalRevenue)
@@ -22,5 +25,9 @@ router.get(
   OrderController.getAllOrders,
 )
 router.get('/:id', OrderController.getSingleOrder)
+
+router.put('/:id', auth(USER_ROLE.admin), OrderController.updateOrder)
+
+router.delete('/:id', auth(USER_ROLE.admin), OrderController.deleteOrder)
 
 export const OrderRoutes = router

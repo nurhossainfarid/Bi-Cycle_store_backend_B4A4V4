@@ -109,10 +109,37 @@ const verifyPayment = catchAsync(async (req, res) => {
   })
 })
 
+// update order status
+
+const updateOrder = catchAsync(async (req, res) => {
+  const order = await OrderServices.updateOrderInDB(req.params.id, req.body)
+
+  sendResponse(res, {
+    statusCode: HttpStatus.OK,
+    success: true,
+    message: 'Order status updated successfully',
+    data: order,
+  })
+})
+
+// delete order
+const deleteOrder = catchAsync(async (req, res) => {
+  const order = await OrderServices.deleteOrderFromDB(req.params.id)
+
+  sendResponse(res, {
+    statusCode: HttpStatus.OK,
+    success: true,
+    message: 'Order deleted successfully',
+    data: order,
+  })
+})
+
 export const OrderController = {
   createOrder,
   calculateTotalRevenue,
   getAllOrders,
   getSingleOrder,
+  updateOrder,
+  deleteOrder,
   verifyPayment,
 }

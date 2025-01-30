@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import AppError from '../../errors/AppError'
-import { Product } from '../product/product.model'
+import { Bicycle } from '../bicycle/bicycle.model'
 import { User } from '../user/user.model'
 import httpStatus from 'http-status'
 import { Order } from './order.model'
@@ -13,13 +13,13 @@ import { orderUtils } from './order.utils'
 // create new order
 const createOrderIntoDB = async (
   user: TUserResponse,
-  payload: { products: { product: string; quantity: number }[] },
+  payload: { bicycles: { bicycle: string; quantity: number }[] },
   client_ip: string,
 ) => {
-  if (!payload?.products?.length)
+  if (!payload?.bicycles?.length)
     throw new AppError(httpStatus.NOT_ACCEPTABLE, 'Order is not specified')
 
-  const products = payload.products
+  const bicycles = payload.bicycles
 
   const session = await mongoose.startSession()
 
@@ -27,32 +27,38 @@ const createOrderIntoDB = async (
     session.startTransaction()
 
     let totalPrice = 0
-    const productDetails = await Promise.all(
-      products.map(async (item) => {
-        const product = await Product.findById(item?.product)
-        if (product) {
-          if (product.quantity < item.quantity) {
+    const bicycleDetails = await Promise.all(
+      bicycles.map(async (item) => {
+        const bicycle = await Bicycle.findById(item?.bicycle)
+        if (bicycle) {
+          if (bicycle.quantity < item.quantity) {
             throw new AppError(
               httpStatus.BAD_REQUEST,
-              `Insufficient stock. Only ${product.quantity} items left.`,
+              `Insufficient stock. Only ${bicycle.quantity} items left.`,
             )
           }
-          product.quantity -= item.quantity
-          if (product.quantity === 0) {
-            product.inStock = false
+          bicycle.quantity -= item.quantity
+          if (bicycle.quantity === 0) {
+            bicycle.inStock = false
           }
-          await product.save({ session })
-          const subtotal = product ? (product?.price || 0) * item.quantity : 0
+          await bicycle.save({ session })
+          const subtotal = bicycle ? (bicycle?.price || 0) * item.quantity : 0
           totalPrice += subtotal
           return item
         } else {
-          throw new AppError(httpStatus.NOT_FOUND, 'Product not found')
+          throw new AppError(httpStatus.NOT_FOUND, 'bicycle not found')
         }
       }),
     )
 
-    let order = await Order.create(
-      [{ user: user?._id, products: productDetails, totalPrice }],
+    const order = await Order.create(
+      [{ user: user?._id, bicycles: bicycleDetails, totalPrice }],
+      { session },
+    )
+
+    await User.updateOne(
+      { _id: user?._id },
+      { $push: { Orders: order[0]._id } },
       { session },
     )
 
@@ -80,12 +86,6 @@ const createOrderIntoDB = async (
       })
     }
 
-    await User.updateOne(
-      { _id: user?._id },
-      { $push: { Orders: order[0]._id } },
-      { session },
-    )
-
     await session.commitTransaction()
     session.endSession()
 
@@ -97,6 +97,7 @@ const createOrderIntoDB = async (
   }
 }
 
+// verify payment
 const verifyPayment = async (order_id: string) => {
   const verifiedPayment = await orderUtils.verifyPaymentAsync(order_id)
 
@@ -129,7 +130,7 @@ const verifyPayment = async (order_id: string) => {
 
 // get all orders
 const getAllOrdersFromDB = async (query: Record<string, unknown>) => {
-  // const orders = await OrderModel.find().populate('user').populate('product')
+  // const orders = await OrderModel.find().populate('user').populate('bicycle')
 
   const orderQuery = new QueryBuilder(Order.find(), query)
     .search(orderSearchTerm)
@@ -145,8 +146,53 @@ const getAllOrdersFromDB = async (query: Record<string, unknown>) => {
 
 // get single order
 const getSingleOrderFromDB = async (id: string) => {
-  const result = await Order.findById(id).populate('user').populate('product')
+  const result = await Order.findById(id).populate('user').populate('bicycles')
   return result
+}
+
+// update order in DB
+const updateOrderInDB = async (
+  id: string,
+  payload: Record<string, unknown>,
+) => {
+  const { user, bicycles } = payload
+  if (user || bicycles) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'User and bicycle cannot be updated',
+    )
+  }
+  const order = await Order.findByIdAndUpdate(id, payload, { new: true })
+  return order
+}
+
+// Delete order from DB
+const deleteOrderFromDB = async (id: string) => {
+  const isOrderExist = await Order.findById(id)
+  if (!isOrderExist) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Order not found')
+  }
+
+  const session = await mongoose.startSession()
+
+  try {
+    session.startTransaction()
+
+    const order = await Order.findByIdAndDelete(id).session(session)
+    await User.updateOne(
+      { _id: isOrderExist.user },
+      { $pull: { Orders: id } },
+      { session },
+    )
+
+    await session.commitTransaction()
+    session.endSession()
+    return order
+  } catch (error: any) {
+    await session.abortTransaction()
+    session.endSession()
+    throw new AppError(httpStatus.BAD_REQUEST, error.message)
+  }
 }
 
 // calculate total revenue
@@ -170,8 +216,10 @@ const calculateTotalRevenueFromDB = async () => {
 
 export const OrderServices = {
   createOrderIntoDB,
-  calculateTotalRevenueFromDB,
   getAllOrdersFromDB,
   getSingleOrderFromDB,
+  updateOrderInDB,
+  deleteOrderFromDB,
+  calculateTotalRevenueFromDB,
   verifyPayment,
 }
