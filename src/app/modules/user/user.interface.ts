@@ -5,6 +5,8 @@ export type TUser = {
   email: string
   name: string
   password: string
+  needsPasswordChange: boolean
+  passwordChangedAt?: Date
   role: 'admin' | 'customer'
   gender?: 'male' | 'female' | 'others'
   dateOfBirth?: string
@@ -14,7 +16,6 @@ export type TUser = {
   permanentAddress?: string
   profileImg?: string
   Orders: Types.ObjectId[]
-  needsPasswordChange: boolean
   isBlocked: boolean
   isDeleted: boolean
 }
@@ -44,6 +45,11 @@ export interface UserModel extends Model<TUser> {
   // instance method for check password is matched
   // eslint-disable-next-line no-unused-vars
   isPasswordMatched(plainTextPassword: string, hashedPassword: string): boolean
+
+  isJWTIssuedBeforePasswordChanged(
+    passwordChangedTimestamp: Date,
+    jwtIssuedTimestamp: number,
+  ): boolean
 }
 
 export type TUserRole = keyof typeof USER_ROLE
