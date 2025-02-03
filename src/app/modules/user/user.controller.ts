@@ -27,6 +27,17 @@ const getSingleUser = catchAsync(async (req, res) => {
   })
 })
 
+const getSingleUserByEmail = catchAsync(async (req, res) => {
+  const result = await UserServices.getSingleUserByEmailFromDB(req.params.email)
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User is retrieved successfully',
+    data: result,
+  })
+})
+
 const deleteUser = catchAsync(async (req, res) => {
   const { id } = req.params
   const result = await UserServices.deleteUserFromDB(id)
@@ -44,5 +55,6 @@ const deleteUser = catchAsync(async (req, res) => {
 export const UserController = {
   getAllUsers,
   getSingleUser,
+  getSingleUserByEmail,
   deleteUser,
 }

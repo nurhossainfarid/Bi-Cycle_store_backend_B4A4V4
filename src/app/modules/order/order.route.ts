@@ -13,9 +13,8 @@ router.post(
   OrderController.createOrder,
 )
 router.get(
-  '/verify',
+  '/verification',
   auth(USER_ROLE.customer, USER_ROLE.admin),
-  validateRequest(OrderValidation.createOrderValidationSchema),
   OrderController.verifyPayment,
 )
 router.get('/revenue', OrderController.calculateTotalRevenue)

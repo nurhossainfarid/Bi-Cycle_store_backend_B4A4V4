@@ -9,6 +9,8 @@ router.get('/', auth(USER_ROLE.admin), UserController.getAllUsers)
 
 router.get('/:id', UserController.getSingleUser)
 
+router.get('/email/:email', UserController.getSingleUserByEmail)
+
 router.delete('/:id', UserController.deleteUser)
 
 export const UserRoutes = router

@@ -28,6 +28,11 @@ const getSingleUserFromDB = async (id: string) => {
   return result
 }
 
+const getSingleUserByEmailFromDB = async (email: string) => {
+  const result = await User.findOne({ email: email })
+  return result
+}
+
 const deleteUserFromDB = async (id: string) => {
   const result = await User.findByIdAndUpdate(id, { isDeleted: true })
   return result
@@ -38,5 +43,6 @@ const deleteUserFromDB = async (id: string) => {
 export const UserServices = {
   getAllUsersFromDB,
   getSingleUserFromDB,
+  getSingleUserByEmailFromDB,
   deleteUserFromDB,
 }
