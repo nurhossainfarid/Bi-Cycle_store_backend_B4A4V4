@@ -81,6 +81,7 @@ const createBicycleValidationSchema = z.object({
       })
       .optional(),
     price: z.number().min(0, 'Price must be a positive number.'),
+    quantity: z.number().min(1, 'Quantity must be at least 1.'),
     inStock: z.boolean().default(true),
     image: z.object({
       front_view: z.string().min(1, 'Front view image is required.'),

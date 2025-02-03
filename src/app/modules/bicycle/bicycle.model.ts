@@ -109,6 +109,7 @@ const BicycleSchema = new Schema<TBicycle>(
       required: [true, 'Price is required.'],
       min: [0, 'Price must be a positive number.'],
     },
+    quantity: Number,
     inStock: {
       type: Boolean,
       required: [true, 'Stock status is required.'],

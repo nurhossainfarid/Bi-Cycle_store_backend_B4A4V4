@@ -18,10 +18,14 @@ router.get(
   auth(USER_ROLE.customer, USER_ROLE.admin),
   BicycleController.getSpecificBicycle,
 )
-router.get('/', auth(USER_ROLE.admin), BicycleController.getAllBicycles)
+router.get(
+  '/',
+  auth(USER_ROLE.admin, USER_ROLE.customer),
+  BicycleController.getAllBicycles,
+)
 router.put(
   '/:bicycleId',
-  auth(USER_ROLE.admin),
+  auth(USER_ROLE.admin, USER_ROLE.customer),
   validateRequest(BicycleValidation.updateBicycleValidationSchema),
   BicycleController.updateBicycle,
 )

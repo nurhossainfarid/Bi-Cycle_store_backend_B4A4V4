@@ -89,7 +89,7 @@ const createOrderIntoDB = async (
     await session.commitTransaction()
     session.endSession()
 
-    return payment
+    return payment.checkout_url
   } catch (error: any) {
     await session.abortTransaction()
     session.endSession()
