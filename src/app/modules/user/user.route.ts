@@ -7,10 +7,26 @@ const router = express.Router()
 
 router.get('/', auth(USER_ROLE.admin), UserController.getAllUsers)
 
-router.get('/:id', UserController.getSingleUser)
+router.get(
+  '/:id',
+  auth(USER_ROLE.admin, USER_ROLE.customer),
+  UserController.getSingleUser,
+)
 
-router.get('/email/:email', UserController.getSingleUserByEmail)
+router.get(
+  '/email/:email',
+  auth(USER_ROLE.admin, USER_ROLE.customer),
+  UserController.getSingleUserByEmail,
+)
 
-router.delete('/:id', UserController.deleteUser)
+router.put(
+  '/:id',
+  auth(USER_ROLE.admin, USER_ROLE.customer),
+  UserController.updateUser,
+)
+
+router.put('/role/:id', auth(USER_ROLE.admin), UserController.changeUserRole)
+
+router.delete('/:id', auth(USER_ROLE.admin), UserController.deleteUser)
 
 export const UserRoutes = router

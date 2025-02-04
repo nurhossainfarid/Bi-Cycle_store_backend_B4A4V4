@@ -50,11 +50,36 @@ const deleteUser = catchAsync(async (req, res) => {
   })
 })
 
-// TODO: update user controller
+const updateUser = catchAsync(async (req, res) => {
+  const { id } = req.params
+  const result = await UserServices.updateUserIntoDB({ id, payload: req.body })
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User is updated successfully',
+    data: result,
+  })
+})
+
+const changeUserRole = catchAsync(async (req, res) => {
+  const { id } = req.params
+  const { role } = req.body
+  const result = await UserServices.changeUserRoleIntoDB(id, role)
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User role is updated successfully',
+    data: result,
+  })
+})
 
 export const UserController = {
   getAllUsers,
   getSingleUser,
   getSingleUserByEmail,
   deleteUser,
+  updateUser,
+  changeUserRole,
 }
