@@ -2,8 +2,6 @@ import express from 'express'
 import { OrderController } from './order.controller'
 import auth from '../../middlewares/auth'
 import { USER_ROLE } from '../user/user.constant'
-import { OrderValidation } from './order.validation'
-import validateRequest from '../../middlewares/validateRequest'
 
 const router = express.Router()
 

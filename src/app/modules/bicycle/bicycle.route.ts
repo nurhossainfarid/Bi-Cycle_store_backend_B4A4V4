@@ -9,23 +9,15 @@ const router = express.Router()
 
 router.post(
   '/create-bicycle',
-  auth(USER_ROLE.admin, USER_ROLE.customer),
+  auth(USER_ROLE.admin),
   validateRequest(BicycleValidation.createBicycleValidationSchema),
   BicycleController.createBicycle,
 )
-router.get(
-  '/:bicycleId',
-  auth(USER_ROLE.customer, USER_ROLE.admin),
-  BicycleController.getSpecificBicycle,
-)
-router.get(
-  '/',
-  auth(USER_ROLE.admin, USER_ROLE.customer),
-  BicycleController.getAllBicycles,
-)
+router.get('/:bicycleId', BicycleController.getSpecificBicycle)
+router.get('/', BicycleController.getAllBicycles)
 router.put(
   '/:bicycleId',
-  auth(USER_ROLE.admin, USER_ROLE.customer),
+  auth(USER_ROLE.admin),
   validateRequest(BicycleValidation.updateBicycleValidationSchema),
   BicycleController.updateBicycle,
 )
