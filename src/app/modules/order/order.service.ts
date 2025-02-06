@@ -52,7 +52,7 @@ const createOrderIntoDB = async (
     )
 
     const order = await Order.create(
-      [{ user: user?._id, bicycles: bicycleDetails, totalPrice }],
+      [{ ...payload, user: user?._id, bicycles: bicycleDetails, totalPrice }],
       { session },
     )
 

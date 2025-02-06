@@ -3,6 +3,10 @@ import { Types } from 'mongoose'
 // Order type
 export type TOrder = {
   user: Types.ObjectId
+  name: string
+  email: string
+  shippingAddress: string
+  paymentMethod: string
   bicycles: {
     bicycle: Types.ObjectId
     quantity: number

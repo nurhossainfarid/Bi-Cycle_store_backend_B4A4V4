@@ -28,6 +28,13 @@ export type TUserResponse = {
   name: string
   Orders: Types.ObjectId[]
   needsPasswordChange: boolean
+  gender?: 'male' | 'female' | 'others'
+  dateOfBirth?: string
+  contactNo?: string
+  bloodGroup?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-'
+  presentAddress?: string
+  permanentAddress?: string
+  profileImg?: string
   isBlocked: boolean
   isDeleted: boolean
   createdAt: string

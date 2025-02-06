@@ -8,6 +8,23 @@ const orderSchema = new Schema<TOrder>(
       ref: 'User',
       required: true,
     },
+    name: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+    },
+    shippingAddress: {
+      type: String,
+      required: true,
+    },
+    paymentMethod: {
+      type: String,
+      required: true,
+      enum: ['SurjoPay', 'PayPal', 'Stripe'],
+    },
     bicycles: [
       {
         bicycle: {

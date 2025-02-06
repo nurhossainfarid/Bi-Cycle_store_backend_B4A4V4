@@ -3,6 +3,10 @@ import { z } from 'zod'
 const createOrderValidationSchema = z.object({
   body: z.object({
     user: z.string().min(1, 'User ID is required.'),
+    name: z.string().min(1, 'Name is required.'),
+    email: z.string().min(1, 'Email is required.'),
+    shippingAddress: z.string().min(1, 'Shipping address is required.'),
+    paymentMethod: z.enum(['SurjoPay', 'PayPal', 'Stripe']),
     bicycles: z.array(
       z.object({
         bicycle: z.string().min(1, 'Bicycle ID is required.'),

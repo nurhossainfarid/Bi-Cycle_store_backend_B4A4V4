@@ -36,13 +36,16 @@ const userSchema = new Schema<TUser, UserModel>(
         values: ['male', 'female', 'others'],
         message: '{VALUE} is not valid',
       },
+      default: '',
     },
     dateOfBirth: {
       type: String,
+      default: '',
     },
     contactNo: {
       type: String,
       trim: true,
+      default: '',
     },
     bloodGroup: {
       type: String,
@@ -50,15 +53,19 @@ const userSchema = new Schema<TUser, UserModel>(
         values: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
         message: '{VALUE} is not valid',
       },
+      default: '',
     },
     presentAddress: {
       type: String,
+      default: '',
     },
     permanentAddress: {
       type: String,
+      default: '',
     },
     profileImg: {
       type: String,
+      default: '',
     },
     Orders: [
       {
